@@ -2,7 +2,7 @@ package services
 
 import (
 	"errors"
-	"order-history/models"
+	"order-domain/order-history/models"
 )
 
 var histories = make(map[string]models.OrderHistory)

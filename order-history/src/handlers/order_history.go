@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"net/http"
-	"order-history/services"
+	"order-domain/order-history/services"
 
 	"github.com/gin-gonic/gin"
 )

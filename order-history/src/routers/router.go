@@ -1,7 +1,7 @@
 package routers
 
 import (
-	"order-history/handlers"
+	"order-domain/order-history/handlers"
 
 	"github.com/gin-gonic/gin"
 )

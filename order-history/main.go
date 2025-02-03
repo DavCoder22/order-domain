@@ -1,7 +1,7 @@
 package main
 
 import (
-	"order-history/routers"
+	"orde-domain/order-history/routers"
 
 	"github.com/gin-gonic/gin"
 )
