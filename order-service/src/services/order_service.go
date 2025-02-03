@@ -1,49 +1,38 @@
-package config
+package service
 
 import (
 	"context"
-	"log"
-
-	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/spf13/viper"
+	"order-domain/order-service/src/models"
+	"order-domain/order-service/src/repository"
 )
 
-type Config struct {
-	DBHost     string `mapstructure:"DB_HOST"`
-	DBPort     string `mapstructure:"DB_PORT"`
-	DBUser     string `mapstructure:"DB_USER"`
-	DBPassword string `mapstructure:"DB_PASSWORD"`
-	DBName     string `mapstructure:"DB_NAME"`
-	JWTSecret  string `mapstructure:"JWT_SECRET"`
-	AppPort    string `mapstructure:"APP_PORT"`
+// OrderServiceInterface define los métodos que debe implementar un servicio de órdenes
+type OrderServiceInterface interface {
+	CreateOrder(ctx context.Context, order *models.Order) error
+	GetOrder(ctx context.Context, orderID string) (*models.Order, error)
+	UpdateOrderStatus(ctx context.Context, orderID string, status models.OrderStatus) error
 }
 
-func LoadConfig(path string) (config Config, err error) {
-	viper.AddConfigPath(path)
-	viper.SetConfigName("app")
-	viper.SetConfigType("env")
-
-	viper.AutomaticEnv() // Permite que Viper lea variables de entorno
-
-	if err = viper.ReadInConfig(); err != nil {
-		log.Printf("Error reading config file, %s", err)
-		return
-	}
-
-	if err = viper.Unmarshal(&config); err != nil {
-		log.Printf("Unable to decode into struct, %v", err)
-		return
-	}
-
-	return config, nil
+// OrderService es la implementación concreta del servicio de órdenes
+type OrderService struct {
+	repo *repository.OrderRepository
 }
 
-func NewDBPool(cfg Config) (*pgxpool.Pool, error) {
-	connStr := "postgres://" + cfg.DBUser + ":" + cfg.DBPassword + "@" + cfg.DBHost + ":" + cfg.DBPort + "/" + cfg.DBName
-	pool, err := pgxpool.New(context.Background(), connStr)
-	if err != nil {
-		log.Fatalf("Unable to connect to database: %v\n", err)
-		return nil, err
-	}
-	return pool, nil
+func NewOrderService(repo *repository.OrderRepository) *OrderService {
+	return &OrderService{repo: repo}
+}
+
+func (s *OrderService) CreateOrder(ctx context.Context, order *models.Order) error {
+	// Implementación del método CreateOrder
+	return s.repo.CreateOrder(ctx, order)
+}
+
+func (s *OrderService) GetOrder(ctx context.Context, orderID string) (*models.Order, error) {
+	// Implementación del método GetOrder
+	return s.repo.GetOrder(ctx, orderID)
+}
+
+func (s *OrderService) UpdateOrderStatus(ctx context.Context, orderID string, status models.OrderStatus) error {
+	// Implementación del método UpdateOrderStatus
+	return s.repo.UpdateOrderStatus(ctx, orderID, status)
 }
