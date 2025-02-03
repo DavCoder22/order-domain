@@ -23,17 +23,14 @@ func (h *OrderHandler) CreateOrder(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Formato inválido"})
 		return
 	}
-
 	req.ID = generateOrderID()
 	req.Status = models.StatusPending
 	req.CreatedAt = time.Now()
 	req.UpdatedAt = time.Now()
-
 	if err := h.service.CreateOrder(c.Request.Context(), &req); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error creando pedido"})
 		return
 	}
-
 	c.JSON(http.StatusCreated, req)
 }
 

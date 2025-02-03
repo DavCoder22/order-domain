@@ -2,7 +2,7 @@ package services
 
 import (
 	"errors"
-	"order-tracking/models"
+	"order-domain/order-tracking/models"
 )
 
 var statuses = make(map[string]models.OrderStatus)

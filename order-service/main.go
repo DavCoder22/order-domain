@@ -34,12 +34,13 @@ func main() {
 
 	// Configurar servidor Gin
 	r := gin.Default()
-
 	// Middleware de autenticación básico
 	r.Use(func(c *gin.Context) {
 		if c.GetHeader("Authorization") != "Bearer "+cfg.JWTSecret {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Acceso no autorizado"})
+			return
 		}
+		c.Next()
 	})
 
 	// Rutas

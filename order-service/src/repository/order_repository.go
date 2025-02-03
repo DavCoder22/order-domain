@@ -21,29 +21,26 @@ func (r *OrderRepository) CreateOrder(ctx context.Context, order *models.Order) 
 		return err
 	}
 	defer tx.Rollback(ctx)
-
 	// Insertar orden
 	_, err = tx.Exec(ctx,
 		`INSERT INTO orders (id, user_id, status, total, created_at, updated_at)
-		 VALUES ($1, $2, $3, $4, $5, $6)`,
+        VALUES ($1, $2, $3, $4, $5, $6)`,
 		order.ID, order.UserID, order.Status, order.Total, order.CreatedAt, order.UpdatedAt,
 	)
 	if err != nil {
 		return err
 	}
-
 	// Insertar items
 	for _, item := range order.Items {
 		_, err = tx.Exec(ctx,
 			`INSERT INTO order_items (order_id, product_id, quantity, price)
-			 VALUES ($1, $2, $3, $4)`,
+            VALUES ($1, $2, $3, $4)`,
 			order.ID, item.ProductID, item.Quantity, item.Price,
 		)
 		if err != nil {
 			return err
 		}
 	}
-
 	return tx.Commit(ctx)
 }
 
