@@ -3,7 +3,7 @@ package handlers
 import (
 	"net/http"
 	"order-domain/order-service/src/models"
-	"order-domain/order-service/src/service"
+	"order-domain/order-service/src/services"
 	"time"
 
 	"github.com/gin-gonic/gin"
