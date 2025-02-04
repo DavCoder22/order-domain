@@ -3,11 +3,11 @@ package main
 import (
 	"context"
 	"log"
-	"net/http"
+
 	"order-domain/order-service/src/config"
 	"order-domain/order-service/src/handlers"
 	"order-domain/order-service/src/repository"
-	"order-domain/order-service/src/service"
+	service "order-domain/order-service/src/services"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -34,14 +34,6 @@ func main() {
 
 	// Configurar servidor Gin
 	r := gin.Default()
-	// Middleware de autenticación básico
-	r.Use(func(c *gin.Context) {
-		if c.GetHeader("Authorization") != "Bearer "+cfg.JWTSecret {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Acceso no autorizado"})
-			return
-		}
-		c.Next()
-	})
 
 	// Rutas
 	r.POST("/orders", orderHandler.CreateOrder)

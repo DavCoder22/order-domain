@@ -22,13 +22,13 @@ func init() {
 	var dbPort = os.Getenv("DB_PORT")
 	var dbName = os.Getenv("DB_NAME")
 	var dataSourceName = dbUser + ":" + dbPassword + "@tcp(" + dbHost + ":" + dbPort + ")/" + dbName
-	var err error
-	DB, err = sql.Open("postgres", dataSourceName)
-	if err != nil {
-		log.Fatalf("Error opening database: %q", err)
+	var dbErr error
+	DB, dbErr = sql.Open("postgres", dataSourceName)
+	if dbErr != nil {
+		log.Fatalf("Error opening database: %q", dbErr)
 	}
-	err = DB.Ping()
-	if err != nil {
-		log.Fatal("Error connecting to the database: %q", err)
+	pingErr := DB.Ping()
+	if pingErr != nil {
+		log.Fatal("Error connecting to the database: %q", pingErr)
 	}
 }
