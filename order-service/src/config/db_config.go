@@ -2,6 +2,7 @@ package config
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"os"
 
@@ -12,23 +13,37 @@ import (
 var DB *sql.DB
 
 func init() {
+	// Cargar variables de entorno desde el archivo .env
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatalf("Error loading .env file: %q", err)
+		log.Println("Error loading .env file, using system environment variables")
 	}
-	var dbUser = os.Getenv("DB_USER")
-	var dbPassword = os.Getenv("DB_PASSWORD")
-	var dbHost = os.Getenv("DB_HOST")
-	var dbPort = os.Getenv("DB_PORT")
-	var dbName = os.Getenv("DB_NAME")
-	var dataSourceName = dbUser + ":" + dbPassword + "@tcp(" + dbHost + ":" + dbPort + ")/" + dbName
+
+	// Obtener variables de entorno
+	dbUser := os.Getenv("DB_USER")
+	dbPassword := os.Getenv("DB_PASSWORD")
+	dbHost := os.Getenv("DB_HOST")
+	dbPort := os.Getenv("DB_PORT")
+	dbName := os.Getenv("DB_NAME")
+
+	// Formatear la cadena de conexión correctamente para PostgreSQL
+	dataSourceName := fmt.Sprintf(
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		dbHost, dbPort, dbUser, dbPassword, dbName,
+	)
+
+	// Abrir la conexión con la base de datos
 	var dbErr error
 	DB, dbErr = sql.Open("postgres", dataSourceName)
 	if dbErr != nil {
-		log.Fatalf("Error opening database: %q", dbErr)
+		log.Fatalf("❌ Error opening database: %v", dbErr)
 	}
+
+	// Probar la conexión
 	pingErr := DB.Ping()
 	if pingErr != nil {
-		log.Fatal("Error connecting to the database: %q", pingErr)
+		log.Fatalf("❌ Error connecting to the database: %v", pingErr)
 	}
+
+	log.Println("✅ Successfully connected to the database!")
 }
