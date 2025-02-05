@@ -45,8 +45,34 @@ func (r *OrderRepository) CreateOrder(ctx context.Context, order *models.Order) 
 }
 
 func (r *OrderRepository) GetOrder(ctx context.Context, orderID string) (*models.Order, error) {
-	// Implementar consulta similar al ejemplo anterior
-	return nil, nil
+	var order models.Order
+	err := r.db.QueryRow(ctx,
+		`SELECT id, user_id, status, total, created_at, updated_at FROM orders WHERE id = $1`,
+		orderID,
+	).Scan(&order.ID, &order.UserID, &order.Status, &order.Total, &order.CreatedAt, &order.UpdatedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	// Obtener los items de la orden
+	rows, err := r.db.Query(ctx,
+		`SELECT product_id, quantity, price FROM order_items WHERE order_id = $1`,
+		orderID,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var item models.OrderItem
+		if err := rows.Scan(&item.ProductID, &item.Quantity, &item.Price); err != nil {
+			return nil, err
+		}
+		order.Items = append(order.Items, item)
+	}
+
+	return &order, nil
 }
 
 func (r *OrderRepository) UpdateOrderStatus(ctx context.Context, orderID string, status models.OrderStatus) error {
