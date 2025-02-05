@@ -1,0 +1,74 @@
+# Created by https://www.toptal.com/developers/gitignore/api/go,vscode,credentials
+
+# Go
+# -------------------------------
+# Compiled binary files
+*.o
+*.out
+*.exe
+*.dll
+*.so
+*.dylib
+*.a
+
+# Dependency directories
+vendor/
+
+# Go coverage report
+coverage/
+
+# Go build files
+/bin/
+/pkg/
+
+# Go test files
+*.test
+
+# Go profiling data
+*.prof
+
+# VSCode
+# -------------------------------
+.vscode/
+
+# Credentials
+# -------------------------------
+# AWS
+.aws/
+
+# Azure
+.azure/
+
+# Google Cloud
+.gcloud/
+
+# Heroku
+.env
+
+# Local configuration files
+.env
+app.env
+.env.*
+
+# Private keys
+*.key
+*.pem
+*.crt
+*.csr
+*.p12
+*.pfx
+*.p7b
+*.p7c
+*.cer
+*.der
+*.jks
+
+# SSH keys
+id_rsa
+id_rsa.pub
+
+# Other credentials
+.credentials
+.password
+.secret
+.config

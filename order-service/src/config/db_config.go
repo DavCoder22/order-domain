@@ -4,46 +4,39 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"os"
 
-	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
 var DB *sql.DB
 
-func init() {
-	// Cargar variables de entorno desde el archivo .env
-	err := godotenv.Load()
+func InitDB() {
+	// Cargar la configuración desde Viper
+	err := LoadConfig(".")
 	if err != nil {
-		log.Println("Error loading .env file, using system environment variables")
+		log.Fatalf("❌ Error cargando la configuración: %v", err)
 	}
 
-	// Obtener variables de entorno
-	dbUser := os.Getenv("DB_USER")
-	dbPassword := os.Getenv("DB_PASSWORD")
-	dbHost := os.Getenv("DB_HOST")
-	dbPort := os.Getenv("DB_PORT")
-	dbName := os.Getenv("DB_NAME")
-
-	// Formatear la cadena de conexión correctamente para PostgreSQL
+	// Construcción de la cadena de conexión correcta para PostgreSQL
 	dataSourceName := fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		dbHost, dbPort, dbUser, dbPassword, dbName,
+		"postgres://%s:%s@%s:%s/%s?sslmode=require",
+		AppConfig.DBUser, AppConfig.DBPassword, AppConfig.DBHost, AppConfig.DBPort, AppConfig.DBName,
 	)
 
-	// Abrir la conexión con la base de datos
+	log.Println("🔍 Conectando a la base de datos con:", dataSourceName)
+
+	// Abrir conexión
 	var dbErr error
 	DB, dbErr = sql.Open("postgres", dataSourceName)
 	if dbErr != nil {
-		log.Fatalf("❌ Error opening database: %v", dbErr)
+		log.Fatalf("❌ Error al abrir la base de datos: %v", dbErr)
 	}
 
-	// Probar la conexión
+	// Probar conexión
 	pingErr := DB.Ping()
 	if pingErr != nil {
-		log.Fatalf("❌ Error connecting to the database: %v", pingErr)
+		log.Fatalf("❌ Error conectando a la base de datos: %v", pingErr)
 	}
 
-	log.Println("✅ Successfully connected to the database!")
+	log.Println("✅ Conexión exitosa a la base de datos!")
 }

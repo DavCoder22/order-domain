@@ -13,36 +13,50 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func main() {
-	cfg, err := config.LoadConfig(".")
-	if err != nil {
-		log.Fatal("Error cargando configuración:", err)
-	}
-
-	// Conexión a PostgreSQL
+// Conexión a la base de datos
+func connectDB(cfg *config.Config) (*pgxpool.Pool, error) {
 	connStr := "postgres://" + cfg.DBUser + ":" + cfg.DBPassword + "@" + cfg.DBHost + ":" + cfg.DBPort + "/" + cfg.DBName
 	db, err := pgxpool.New(context.Background(), connStr)
 	if err != nil {
-		log.Fatal("Error conectando a PostgreSQL:", err)
+		return nil, err
+	}
+	return db, nil
+}
+
+// Configurar rutas
+func setupRouter(orderHandler *handlers.OrderHandler) *gin.Engine {
+	r := gin.Default()
+	r.POST("/orders", orderHandler.CreateOrder)
+	r.GET("/orders/:id", orderHandler.GetOrder)
+	r.PUT("/orders/:id/status", orderHandler.UpdateOrderStatus)
+	return r
+}
+
+func main() {
+	// Cargar configuración
+	if err := config.LoadConfig("."); err != nil {
+		log.Fatalf("❌ Error cargando configuración: %v", err)
+	}
+	cfg := config.AppConfig
+
+	// Conectar a la BD
+	db, err := connectDB(&cfg)
+	if err != nil {
+		log.Fatal(err)
 	}
 	defer db.Close()
 
-	// Inicializar servicios
+	// Inicializar servicios y handlers
 	repo := repository.NewOrderRepository(db)
 	orderService := service.NewOrderService(repo)
 	orderHandler := handlers.NewOrderHandler(orderService)
 
-	// Configurar servidor Gin
-	r := gin.Default()
-
-	// Rutas
-	r.POST("/orders", orderHandler.CreateOrder)
-	r.GET("/orders/:id", orderHandler.GetOrder)
-	r.PUT("/orders/:id/status", orderHandler.UpdateOrderStatus)
+	// Configurar servidor
+	r := setupRouter(orderHandler)
 
 	// Iniciar servidor
-	log.Printf("Servidor iniciado en el puerto %s", cfg.AppPort)
+	log.Printf("🚀 Servidor iniciado en http://localhost:%s", cfg.AppPort)
 	if err := r.Run(":" + cfg.AppPort); err != nil {
-		log.Fatal("Error iniciando servidor:", err)
+		log.Fatalf("❌ Error iniciando servidor: %v", err)
 	}
 }
