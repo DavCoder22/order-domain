@@ -29,14 +29,20 @@ func (h *OrderHandler) CreateOrder(c *gin.Context) {
 		})
 		return
 	}
+<<<<<<< HEAD
 
 	// Generar ID y timestamps
+=======
+>>>>>>> 2e8c4e40ccb4194782651a6cae4a21614992d7c7
 	req.ID = generateOrderID()
 	req.Status = models.StatusPending
 	req.CreatedAt = time.Now()
 	req.UpdatedAt = time.Now()
+<<<<<<< HEAD
 
 	// Guardar la orden en la base de datos
+=======
+>>>>>>> 2e8c4e40ccb4194782651a6cae4a21614992d7c7
 	if err := h.service.CreateOrder(c.Request.Context(), &req); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Error creando pedido",
@@ -44,7 +50,6 @@ func (h *OrderHandler) CreateOrder(c *gin.Context) {
 		})
 		return
 	}
-
 	c.JSON(http.StatusCreated, req)
 }
 

@@ -35,9 +35,20 @@ func main() {
 
 	// Configurar servidor Gin
 	r := gin.Default()
+<<<<<<< HEAD
 
 	// Usar el middleware temporal de autenticación
 	r.Use(middleware.TemporaryAuthMiddleware())
+=======
+	// Middleware de autenticación básico
+	r.Use(func(c *gin.Context) {
+		if c.GetHeader("Authorization") != "Bearer "+cfg.JWTSecret {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Acceso no autorizado"})
+			return
+		}
+		c.Next()
+	})
+>>>>>>> 2e8c4e40ccb4194782651a6cae4a21614992d7c7
 
 	// Rutas
 	r.POST("/orders", orderHandler.CreateOrder)

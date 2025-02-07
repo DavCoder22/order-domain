@@ -23,6 +23,7 @@ func LoadConfig(path string) error {
 	viper.SetConfigName("app") // Archivo esperado: app.env
 	viper.SetConfigType("env")
 
+<<<<<<< HEAD
 	viper.AutomaticEnv() // Cargar variables de entorno del sistema
 
 	if err := viper.ReadInConfig(); err != nil {
@@ -37,4 +38,16 @@ func LoadConfig(path string) error {
 
 	log.Println("✅ Configuración cargada correctamente")
 	return nil
+=======
+	viper.AutomaticEnv() // Permite que Viper lea variables de entorno
+	if err = viper.ReadInConfig(); err != nil {
+		log.Printf("Error reading config file, %s", err)
+		return
+	}
+	if err = viper.Unmarshal(&config); err != nil {
+		log.Printf("Unable to decode into struct, %v", err)
+		return
+	}
+	return config, nil
+>>>>>>> 2e8c4e40ccb4194782651a6cae4a21614992d7c7
 }

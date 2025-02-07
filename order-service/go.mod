@@ -5,6 +5,10 @@ go 1.21.0
 require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/jackc/pgx/v5 v5.7.2
+<<<<<<< HEAD
+=======
+	github.com/joho/godotenv v1.5.1
+>>>>>>> 2e8c4e40ccb4194782651a6cae4a21614992d7c7
 	github.com/lib/pq v1.10.9
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.10.0
