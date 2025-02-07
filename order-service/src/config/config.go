@@ -12,26 +12,29 @@ type Config struct {
 	DBUser     string `mapstructure:"DB_USER"`
 	DBPassword string `mapstructure:"DB_PASSWORD"`
 	DBName     string `mapstructure:"DB_NAME"`
-	JWTSecret  string `mapstructure:"JWT_SECRET"`
 	AppPort    string `mapstructure:"APP_PORT"`
 }
 
-func LoadConfig(path string) (config Config, err error) {
+var AppConfig Config
+
+// Cambia la firma de la función para que solo retorne la configuración
+func LoadConfig(path string) error {
 	viper.AddConfigPath(path)
-	viper.SetConfigName("app")
+	viper.SetConfigName("app") // Archivo esperado: app.env
 	viper.SetConfigType("env")
 
-	viper.AutomaticEnv() // Permite que Viper lea variables de entorno
+	viper.AutomaticEnv() // Cargar variables de entorno del sistema
 
-	if err = viper.ReadInConfig(); err != nil {
-		log.Printf("Error reading config file, %s", err)
-		return
+	if err := viper.ReadInConfig(); err != nil {
+		log.Printf("⚠️ No se pudo leer el archivo de configuración: %s", err)
+		return err
 	}
 
-	if err = viper.Unmarshal(&config); err != nil {
-		log.Printf("Unable to decode into struct, %v", err)
-		return
+	if err := viper.Unmarshal(&AppConfig); err != nil {
+		log.Printf("❌ No se pudo decodificar la configuración: %v", err)
+		return err
 	}
 
-	return config, nil
+	log.Println("✅ Configuración cargada correctamente")
+	return nil
 }

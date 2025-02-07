@@ -13,6 +13,9 @@ RUN go mod download
 # Copiar el código fuente
 COPY . .
 
+# Copiar el archivo de configuración
+COPY app.env ./
+
 # Construir la aplicación
 RUN go build -o order-service
 

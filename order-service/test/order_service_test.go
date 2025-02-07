@@ -68,7 +68,9 @@ func TestCreateOrderHandler(t *testing.T) {
 
 	handler.CreateOrder(c)
 
+	// Verificar el código de estado
 	assert.Equal(t, http.StatusCreated, w.Code)
+	// Verificar que el mock fue llamado correctamente
 	mockService.AssertExpectations(t)
 }
 
@@ -96,7 +98,9 @@ func TestGetOrderHandler(t *testing.T) {
 
 	handler.GetOrder(c)
 
+	// Verificar el código de estado
 	assert.Equal(t, http.StatusOK, w.Code)
+	// Verificar que el mock fue llamado correctamente
 	mockService.AssertExpectations(t)
 }
 
@@ -113,6 +117,8 @@ func TestUpdateOrderStatusHandler(t *testing.T) {
 
 	handler.UpdateOrderStatus(c)
 
+	// Verificar el código de estado
 	assert.Equal(t, http.StatusOK, w.Code)
+	// Verificar que el mock fue llamado correctamente
 	mockService.AssertExpectations(t)
 }
