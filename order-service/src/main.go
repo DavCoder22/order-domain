@@ -4,19 +4,21 @@ import (
 	"context"
 	"log"
 	"net/http"
-	"order-domain/order-service/src/config"
-	"order-domain/order-service/src/handlers"
-	"order-domain/order-service/src/repository"
-	"order-domain/order-service/src/service"
+
+	"order-service/src/config"
+	"order-service/src/handlers"
+	"order-service/src/repository"
+	"order-service/src/service"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func main() {
+	// Cargar configuración
 	cfg, err := config.LoadConfig(".")
 	if err != nil {
-		log.Fatal("Error cargando configuración:", err)
+		log.Fatalf("Error cargando configuración: %v", err)
 	}
 
 	// Conexión a PostgreSQL
@@ -39,7 +41,9 @@ func main() {
 	r.Use(func(c *gin.Context) {
 		if c.GetHeader("Authorization") != "Bearer "+cfg.JWTSecret {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Acceso no autorizado"})
+			return
 		}
+		c.Next()
 	})
 
 	// Rutas
