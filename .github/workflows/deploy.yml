@@ -1,0 +1,43 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches:
+      - main  # Asegúrate de que esto coincida con la rama que deseas desplegar
+
+jobs:
+  deploy:
+    name: Deploy to AWS
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: |
+          ${{ github.repository }}:latest
+        labels: |
+          maintainer=davidelpatron22@gmail.com
+
+    - name: Deploy to AWS
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      run: |
+        # Comandos para desplegar en AWS
+        # Por ejemplo, usar AWS CLI para desplegar en ECS, EKS, etc.
+        aws ecs update-service --cluster your-cluster-name --service your-service-name --force-new-deployment
