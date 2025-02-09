@@ -1,17 +1,17 @@
-# Order Domain
+# 🛒 Order Domain
 
 This repository contains the microservices related to order management for the microservices project.
 
-## Microservices
+## 📦 Microservices
 
-- [Order History](order-management/order-history/README.md)
-- [Order Service](order-management/order-service/README.md)
-- [Order Tracking](order-management/order-tracking/README.md)
+- 📜 Order History
+- 🛍️ Order Service
+- 🚚 Order Tracking
 
-## CI/CD Configuration
+## 🔧 CI/CD Configuration
 
 The CI/CD pipeline is configured using GitHub Actions. You can find the workflows in the `.github/workflows` folder.
 
-## Contribution
+## 🤝 Contribution
 
-Please follow the [contribution guidelines](CONTRIBUTING.md) to contribute to this project.
+Please follow the contribution guidelines to contribute to this project.
