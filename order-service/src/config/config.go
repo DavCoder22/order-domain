@@ -7,34 +7,34 @@ import (
 )
 
 type Config struct {
-	DBHost     string `mapstructure:"DB_HOST"`
-	DBPort     string `mapstructure:"DB_PORT"`
-	DBUser     string `mapstructure:"DB_USER"`
-	DBPassword string `mapstructure:"DB_PASSWORD"`
-	DBName     string `mapstructure:"DB_NAME"`
-	AppPort    string `mapstructure:"APP_PORT"`
+	DBHost      string `mapstructure:"DB_HOST"`
+	DBPort      string `mapstructure:"DB_PORT"`
+	DBUser      string `mapstructure:"DB_USER"`
+	DBPassword  string `mapstructure:"DB_PASSWORD"`
+	DBName      string `mapstructure:"DB_NAME"`
+	SupabaseURL string `mapstructure:"SUPABASE_URL"`
+	AppPort     string `mapstructure:"APP_PORT"`
 }
 
 var AppConfig Config
 
-// Cambia la firma de la función para que solo retorne la configuración
-func LoadConfig(path string) error {
+func LoadConfig(path string) (config Config, err error) {
 	viper.AddConfigPath(path)
-	viper.SetConfigName("app") // Archivo esperado: app.env
+	viper.SetConfigName("app")
 	viper.SetConfigType("env")
 
-	viper.AutomaticEnv() // Cargar variables de entorno del sistema
+	viper.AutomaticEnv() // Allows Viper to read environment variables
 
-	if err := viper.ReadInConfig(); err != nil {
-		log.Printf("⚠️ No se pudo leer el archivo de configuración: %s", err)
-		return err
+	if err = viper.ReadInConfig(); err != nil {
+		log.Printf("Error reading config file, %s", err)
+		return
 	}
 
-	if err := viper.Unmarshal(&AppConfig); err != nil {
-		log.Printf("❌ No se pudo decodificar la configuración: %v", err)
-		return err
+	if err = viper.Unmarshal(&config); err != nil {
+		log.Printf("Unable to decode into struct, %v", err)
+		return
 	}
 
-	log.Println("✅ Configuración cargada correctamente")
-	return nil
+	AppConfig = config // Assign the global configuration
+	return config, nil
 }

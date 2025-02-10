@@ -3,77 +3,51 @@ package main
 import (
 	"context"
 	"log"
-<<<<<<< HEAD:order-service/src/main.go
-	"net/http"
-
-	"order-service/src/config"
-	"order-service/src/handlers"
-	"order-service/src/repository"
-	"order-service/src/service"
-=======
+	"os"
 
 	"order-domain/order-service/src/config"
 	"order-domain/order-service/src/handlers"
 	"order-domain/order-service/src/middleware"
 	"order-domain/order-service/src/repository"
 	service "order-domain/order-service/src/services"
->>>>>>> 125c66e8f56ca6cc5e6ac090cf8992d7170db73d:order-service/main.go
 
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5"
 )
 
 func main() {
-<<<<<<< HEAD:order-service/src/main.go
-	// Cargar configuración
-	cfg, err := config.LoadConfig(".")
+	// Load configuration
+	_, err := config.LoadConfig(".")
 	if err != nil {
-		log.Fatalf("Error cargando configuración: %v", err)
-=======
-	// Cargar la configuración
-	if err := config.LoadConfig("."); err != nil {
-		log.Fatal("Error cargando configuración:", err)
->>>>>>> 125c66e8f56ca6cc5e6ac090cf8992d7170db73d:order-service/main.go
+		log.Fatalf("Error loading configuration: %v", err)
 	}
 
-	// Conexión a PostgreSQL
-	connStr := "postgres://" + config.AppConfig.DBUser + ":" + config.AppConfig.DBPassword + "@" + config.AppConfig.DBHost + ":" + config.AppConfig.DBPort + "/" + config.AppConfig.DBName
-	db, err := pgxpool.New(context.Background(), connStr)
+	// Initialize database connection
+	conn, err := pgx.Connect(context.Background(), os.Getenv("SUPABASE_URL"))
 	if err != nil {
-		log.Fatal("Error conectando a PostgreSQL:", err)
+		log.Fatalf("Failed to connect to the database: %v", err)
 	}
-	defer db.Close()
+	defer conn.Close(context.Background())
 
-	// Inicializar servicios
-	repo := repository.NewOrderRepository(db)
+	// Initialize services
+	repo := repository.NewOrderRepository(conn)
 	orderService := service.NewOrderService(repo)
 	orderHandler := handlers.NewOrderHandler(orderService)
 
-	// Configurar servidor Gin
+	// Configure Gin server
 	r := gin.Default()
 
-<<<<<<< HEAD:order-service/src/main.go
-	// Middleware de autenticación básico
-	r.Use(func(c *gin.Context) {
-		if c.GetHeader("Authorization") != "Bearer "+cfg.JWTSecret {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Acceso no autorizado"})
-			return
-		}
-		c.Next()
-	})
-=======
-	// Usar el middleware temporal de autenticación
+	// Use temporary authentication middleware
 	r.Use(middleware.TemporaryAuthMiddleware())
->>>>>>> 125c66e8f56ca6cc5e6ac090cf8992d7170db73d:order-service/main.go
 
-	// Rutas
+	// Define routes
 	r.POST("/orders", orderHandler.CreateOrder)
 	r.GET("/orders/:id", orderHandler.GetOrder)
 	r.PUT("/orders/:id/status", orderHandler.UpdateOrderStatus)
 
-	// Iniciar servidor
-	log.Printf("Servidor iniciado en el puerto %s", config.AppConfig.AppPort)
+	// Start server
+	log.Printf("Server started on port %s", config.AppConfig.AppPort)
 	if err := r.Run(":" + config.AppConfig.AppPort); err != nil {
-		log.Fatal("Error iniciando servidor:", err)
+		log.Fatalf("Error starting server: %v", err)
 	}
 }

@@ -1,66 +1,77 @@
 package config
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
 	"log"
-	"os"
 
-<<<<<<< HEAD
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/joho/godotenv"
-=======
-	_ "github.com/lib/pq"
->>>>>>> 125c66e8f56ca6cc5e6ac090cf8992d7170db73d
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-var DB *sql.DB
+var DB *pgxpool.Pool
 
-<<<<<<< HEAD
-func init() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error loading .env file: %q", err)
-	}
-
-	var dbUser = os.Getenv("DB_USER")
-	var dbPassword = os.Getenv("DB_PASSWORD")
-	var dbHost = os.Getenv("DB_HOST")
-	var dbPort = os.Getenv("DB_PORT")
-	var dbName = os.Getenv("DB_NAME")
-
-	var dataSourceName = dbUser + ":" + dbPassword + "@tcp(" + dbHost + ":" + dbPort + ")/" + dbName
-	var err error
-	DB, err = sql.Open("mysql", dataSourceName)
-=======
 func InitDB() {
-	// Cargar la configuración desde Viper
-	err := LoadConfig(".")
->>>>>>> 125c66e8f56ca6cc5e6ac090cf8992d7170db73d
+	// Load configuration from Viper
+	config, err := LoadConfig(".")
 	if err != nil {
-		log.Fatalf("❌ Error cargando la configuración: %v", err)
+		log.Fatalf("❌ Error loading configuration: %v", err)
 	}
 
-	// Construcción de la cadena de conexión correcta para PostgreSQL
+	// Try to connect to RDS
+	if connectToRDS(config) {
+		log.Println("✅ Successful connection to RDS")
+	} else {
+		// If it fails, connect to Supabase
+		if connectToSupabase(config) {
+			log.Println("✅ Successful connection to Supabase")
+		} else {
+			log.Fatal("❌ Could not connect to any database")
+		}
+	}
+}
+
+func connectToRDS(config Config) bool {
 	dataSourceName := fmt.Sprintf(
 		"postgres://%s:%s@%s:%s/%s?sslmode=require",
-		AppConfig.DBUser, AppConfig.DBPassword, AppConfig.DBHost, AppConfig.DBPort, AppConfig.DBName,
+		config.DBUser, config.DBPassword, config.DBHost, config.DBPort, config.DBName,
 	)
 
-	log.Println("🔍 Conectando a la base de datos con:", dataSourceName)
+	log.Println("🔍 Connecting to RDS with:", dataSourceName)
 
-	// Abrir conexión
 	var dbErr error
-	DB, dbErr = sql.Open("postgres", dataSourceName)
+	DB, dbErr = pgxpool.New(context.Background(), dataSourceName)
 	if dbErr != nil {
-		log.Fatalf("❌ Error al abrir la base de datos: %v", dbErr)
+		log.Printf("❌ Error opening RDS database: %v", dbErr)
+		return false
 	}
 
-	// Probar conexión
-	pingErr := DB.Ping()
+	pingErr := DB.Ping(context.Background())
 	if pingErr != nil {
-		log.Fatalf("❌ Error conectando a la base de datos: %v", pingErr)
+		log.Printf("❌ Error connecting to RDS database: %v", pingErr)
+		return false
+	}
+	return true
+}
+
+func connectToSupabase(config Config) bool {
+	supabaseURL := config.SupabaseURL
+	if supabaseURL == "" {
+		log.Fatal("❌ Supabase URL not configured")
 	}
 
-	log.Println("✅ Conexión exitosa a la base de datos!")
+	log.Println("🔍 Connecting to Supabase with:", supabaseURL)
+
+	var dbErr error
+	DB, dbErr = pgxpool.New(context.Background(), supabaseURL)
+	if dbErr != nil {
+		log.Printf("❌ Error opening Supabase database: %v", dbErr)
+		return false
+	}
+
+	pingErr := DB.Ping(context.Background())
+	if pingErr != nil {
+		log.Printf("❌ Error connecting to Supabase database: %v", pingErr)
+		return false
+	}
+	return true
 }
