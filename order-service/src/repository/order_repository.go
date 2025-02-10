@@ -21,6 +21,7 @@ func (r *OrderRepository) CreateOrder(ctx context.Context, order *models.Order) 
 		return err
 	}
 	defer tx.Rollback(ctx)
+
 	// Insertar orden
 	_, err = tx.Exec(ctx,
 		`INSERT INTO orders (id, user_id, status, total, created_at, updated_at)
@@ -30,6 +31,7 @@ func (r *OrderRepository) CreateOrder(ctx context.Context, order *models.Order) 
 	if err != nil {
 		return err
 	}
+
 	// Insertar items
 	for _, item := range order.Items {
 		_, err = tx.Exec(ctx,
@@ -41,6 +43,7 @@ func (r *OrderRepository) CreateOrder(ctx context.Context, order *models.Order) 
 			return err
 		}
 	}
+
 	return tx.Commit(ctx)
 }
 

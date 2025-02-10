@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"log"
 
 	"order-domain/order-service/src/config"
@@ -11,21 +10,20 @@ import (
 	service "order-domain/order-service/src/services"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func main() {
 	// Cargar la configuración
-	if err := config.LoadConfig("."); err != nil {
-		log.Fatal("Error cargando configuración:", err)
+	_, err := config.LoadConfig(".")
+	if err != nil {
+		log.Fatalf("Error cargando configuración: %v", err)
 	}
 
-	// Conexión a PostgreSQL
-	connStr := "postgres://" + config.AppConfig.DBUser + ":" + config.AppConfig.DBPassword + "@" + config.AppConfig.DBHost + ":" + config.AppConfig.DBPort + "/" + config.AppConfig.DBName
-	db, err := pgxpool.New(context.Background(), connStr)
-	if err != nil {
-		log.Fatal("Error conectando a PostgreSQL:", err)
-	}
+	// Inicializar la conexión a la base de datos
+	config.InitDB()
+
+	// Usar la conexión global inicializada en config.InitDB()
+	db := config.DB
 	defer db.Close()
 
 	// Inicializar servicios
@@ -39,7 +37,7 @@ func main() {
 	// Usar el middleware temporal de autenticación
 	r.Use(middleware.TemporaryAuthMiddleware())
 
-	// Rutas
+	// Definir rutas
 	r.POST("/orders", orderHandler.CreateOrder)
 	r.GET("/orders/:id", orderHandler.GetOrder)
 	r.PUT("/orders/:id/status", orderHandler.UpdateOrderStatus)
@@ -47,6 +45,6 @@ func main() {
 	// Iniciar servidor
 	log.Printf("Servidor iniciado en el puerto %s", config.AppConfig.AppPort)
 	if err := r.Run(":" + config.AppConfig.AppPort); err != nil {
-		log.Fatal("Error iniciando servidor:", err)
+		log.Fatalf("Error iniciando servidor: %v", err)
 	}
 }
