@@ -23,7 +23,7 @@ func LoadConfig(path string) (config Config, err error) {
 	viper.SetConfigName("app")
 	viper.SetConfigType("env")
 
-	viper.AutomaticEnv() // Permite que Viper lea variables de entorno
+	viper.AutomaticEnv() // Allows Viper to read environment variables
 
 	if err = viper.ReadInConfig(); err != nil {
 		log.Printf("Error reading config file, %s", err)
@@ -35,6 +35,6 @@ func LoadConfig(path string) (config Config, err error) {
 		return
 	}
 
-	AppConfig = config // Asignar la configuración global
+	AppConfig = config // Assign the global configuration
 	return config, nil
 }

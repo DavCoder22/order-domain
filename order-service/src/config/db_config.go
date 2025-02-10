@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -12,21 +11,21 @@ import (
 var DB *pgxpool.Pool
 
 func InitDB() {
-	// Cargar la configuración desde Viper
+	// Load configuration from Viper
 	config, err := LoadConfig(".")
 	if err != nil {
-		log.Fatalf("❌ Error cargando la configuración: %v", err)
+		log.Fatalf("❌ Error loading configuration: %v", err)
 	}
 
-	// Intentar conectar a RDS
+	// Try to connect to RDS
 	if connectToRDS(config) {
-		log.Println("✅ Conexión exitosa a RDS")
+		log.Println("✅ Successful connection to RDS")
 	} else {
-		// Si falla, conectar a Supabase
+		// If it fails, connect to Supabase
 		if connectToSupabase(config) {
-			log.Println("✅ Conexión exitosa a Supabase")
+			log.Println("✅ Successful connection to Supabase")
 		} else {
-			log.Fatal("❌ No se pudo conectar a ninguna base de datos")
+			log.Fatal("❌ Could not connect to any database")
 		}
 	}
 }
@@ -37,18 +36,18 @@ func connectToRDS(config Config) bool {
 		config.DBUser, config.DBPassword, config.DBHost, config.DBPort, config.DBName,
 	)
 
-	log.Println("🔍 Conectando a RDS con:", dataSourceName)
+	log.Println("🔍 Connecting to RDS with:", dataSourceName)
 
 	var dbErr error
 	DB, dbErr = pgxpool.New(context.Background(), dataSourceName)
 	if dbErr != nil {
-		log.Printf("❌ Error al abrir la base de datos RDS: %v", dbErr)
+		log.Printf("❌ Error opening RDS database: %v", dbErr)
 		return false
 	}
 
 	pingErr := DB.Ping(context.Background())
 	if pingErr != nil {
-		log.Printf("❌ Error conectando a la base de datos RDS: %v", pingErr)
+		log.Printf("❌ Error connecting to RDS database: %v", pingErr)
 		return false
 	}
 	return true
@@ -57,21 +56,21 @@ func connectToRDS(config Config) bool {
 func connectToSupabase(config Config) bool {
 	supabaseURL := config.SupabaseURL
 	if supabaseURL == "" {
-		log.Fatal("❌ URL de Supabase no configurada")
+		log.Fatal("❌ Supabase URL not configured")
 	}
 
-	log.Println("🔍 Conectando a Supabase con:", supabaseURL)
+	log.Println("🔍 Connecting to Supabase with:", supabaseURL)
 
 	var dbErr error
 	DB, dbErr = pgxpool.New(context.Background(), supabaseURL)
 	if dbErr != nil {
-		log.Printf("❌ Error al abrir la base de datos Supabase: %v", dbErr)
+		log.Printf("❌ Error opening Supabase database: %v", dbErr)
 		return false
 	}
 
 	pingErr := DB.Ping(context.Background())
 	if pingErr != nil {
-		log.Printf("❌ Error conectando a la base de datos Supabase: %v", pingErr)
+		log.Printf("❌ Error connecting to Supabase database: %v", pingErr)
 		return false
 	}
 	return true

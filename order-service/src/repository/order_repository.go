@@ -4,14 +4,14 @@ import (
 	"context"
 	"order-domain/order-service/src/models"
 
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5"
 )
 
 type OrderRepository struct {
-	db *pgxpool.Pool
+	db *pgx.Conn
 }
 
-func NewOrderRepository(db *pgxpool.Pool) *OrderRepository {
+func NewOrderRepository(db *pgx.Conn) *OrderRepository {
 	return &OrderRepository{db: db}
 }
 
@@ -22,7 +22,7 @@ func (r *OrderRepository) CreateOrder(ctx context.Context, order *models.Order) 
 	}
 	defer tx.Rollback(ctx)
 
-	// Insertar orden
+	// Insert order
 	_, err = tx.Exec(ctx,
 		`INSERT INTO orders (id, user_id, status, total, created_at, updated_at)
         VALUES ($1, $2, $3, $4, $5, $6)`,
@@ -32,7 +32,7 @@ func (r *OrderRepository) CreateOrder(ctx context.Context, order *models.Order) 
 		return err
 	}
 
-	// Insertar items
+	// Insert items
 	for _, item := range order.Items {
 		_, err = tx.Exec(ctx,
 			`INSERT INTO order_items (order_id, product_id, quantity, price)
@@ -57,7 +57,7 @@ func (r *OrderRepository) GetOrder(ctx context.Context, orderID string) (*models
 		return nil, err
 	}
 
-	// Obtener los items de la orden
+	// Get order items
 	rows, err := r.db.Query(ctx,
 		`SELECT product_id, quantity, price FROM order_items WHERE order_id = $1`,
 		orderID,
