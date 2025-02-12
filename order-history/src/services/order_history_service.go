@@ -1,16 +1,19 @@
 package services
 
 import (
-	"errors"
-	"order-domain/order-history/models"
+	"context"
+	"order-domain/order-history/src/models"
+	"order-domain/order-history/src/repository"
 )
 
-var histories = make(map[string]models.OrderHistory)
+type OrderHistoryService struct {
+	repo *repository.OrderHistoryRepository
+}
 
-func GetOrderHistory(userID string) (models.OrderHistory, error) {
-	history, exists := histories[userID]
-	if !exists {
-		return models.OrderHistory{}, errors.New("history not found")
-	}
-	return history, nil
+func NewOrderHistoryService(repo *repository.OrderHistoryRepository) *OrderHistoryService {
+	return &OrderHistoryService{repo: repo}
+}
+
+func (s *OrderHistoryService) GetOrderHistory(ctx context.Context, userID string) (*models.OrderHistory, error) {
+	return s.repo.GetOrderHistory(ctx, userID)
 }

@@ -1,40 +1,65 @@
 package config
 
 import (
+	"context"
 	"log"
+	"os"
 
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
 )
 
 type Config struct {
-	DBHost      string `mapstructure:"DB_HOST"`
-	DBPort      string `mapstructure:"DB_PORT"`
-	DBUser      string `mapstructure:"DB_USER"`
-	DBPassword  string `mapstructure:"DB_PASSWORD"`
-	DBName      string `mapstructure:"DB_NAME"`
-	SupabaseURL string `mapstructure:"SUPABASE_URL"`
-	AppPort     string `mapstructure:"APP_PORT"`
+	SupabaseURL     string
+	AppPort         string
+	JWTSecret       string
+	OrderHistoryDB  string // Ejemplo de configuración específica
+	OrderTrackingDB string // Ejemplo de configuración específica
 }
 
 var AppConfig Config
+var DB *pgxpool.Pool
 
-func LoadConfig(path string) (config Config, err error) {
-	viper.AddConfigPath(path)
-	viper.SetConfigName("app")
-	viper.SetConfigType("env")
+func LoadConfig(path string) error {
+	// Load environment variables from app.env file
+	err := godotenv.Load(path + "/app.env")
+	if err != nil {
+		log.Printf("Error loading app.env file: %v", err)
+	}
 
 	viper.AutomaticEnv() // Allows Viper to read environment variables
 
-	if err = viper.ReadInConfig(); err != nil {
-		log.Printf("Error reading config file, %s", err)
-		return
+	// Set up Viper to read from environment variables
+	viper.BindEnv("SUPABASE_URL", "SUPABASE_URL")
+	viper.BindEnv("APP_PORT", "APP_PORT")
+	viper.BindEnv("JWT_SECRET", "JWT_SECRET")
+
+	AppConfig.SupabaseURL = viper.GetString("SUPABASE_URL")
+	AppConfig.AppPort = viper.GetString("APP_PORT")
+	AppConfig.JWTSecret = viper.GetString("JWT_SECRET")
+
+	return nil
+}
+
+func InitDB() {
+	supabaseURL := os.Getenv("SUPABASE_URL")
+	if supabaseURL == "" {
+		log.Fatal("❌ Supabase URL not configured")
 	}
 
-	if err = viper.Unmarshal(&config); err != nil {
-		log.Printf("Unable to decode into struct, %v", err)
-		return
+	log.Println("🔍 Connecting to Supabase with:", supabaseURL)
+
+	var dbErr error
+	DB, dbErr = pgxpool.New(context.Background(), supabaseURL)
+	if dbErr != nil {
+		log.Fatalf("❌ Error opening Supabase database: %v", dbErr)
 	}
 
-	AppConfig = config // Assign the global configuration
-	return config, nil
+	pingErr := DB.Ping(context.Background())
+	if pingErr != nil {
+		log.Fatalf("❌ Error connecting to Supabase database: %v", pingErr)
+	}
+
+	log.Println("✅ Successful connection to Supabase")
 }

@@ -1,46 +1,38 @@
 package main
 
 import (
-	"context"
 	"log"
-	"os"
 
 	"order-domain/order-service/src/config"
 	"order-domain/order-service/src/handlers"
-	"order-domain/order-service/src/middleware"
 	"order-domain/order-service/src/repository"
 	service "order-domain/order-service/src/services"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5"
 )
 
 func main() {
 	// Load configuration
-	_, err := config.LoadConfig(".")
-	if err != nil {
+	if err := config.LoadConfig("."); err != nil {
 		log.Fatalf("Error loading configuration: %v", err)
 	}
 
 	// Initialize database connection
-	conn, err := pgx.Connect(context.Background(), os.Getenv("SUPABASE_URL"))
-	if err != nil {
-		log.Fatalf("Failed to connect to the database: %v", err)
-	}
-	defer conn.Close(context.Background())
+	config.InitDB()
+
+	// Use the global connection initialized in config.InitDB()
+	db := config.DB
+	defer db.Close()
 
 	// Initialize services
-	repo := repository.NewOrderRepository(conn)
+	repo := repository.NewOrderRepository(db)
 	orderService := service.NewOrderService(repo)
 	orderHandler := handlers.NewOrderHandler(orderService)
 
 	// Configure Gin server
 	r := gin.Default()
 
-	// Use temporary authentication middleware
-	r.Use(middleware.TemporaryAuthMiddleware())
-
-	// Define routes
+	// Define routes without authentication middleware
 	r.POST("/orders", orderHandler.CreateOrder)
 	r.GET("/orders/:id", orderHandler.GetOrder)
 	r.PUT("/orders/:id/status", orderHandler.UpdateOrderStatus)

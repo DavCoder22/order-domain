@@ -1,16 +1,19 @@
 package services
 
 import (
-	"errors"
-	"order-domain/order-tracking/models"
+	"context"
+	"order-domain/order-tracking/src/models"
+	"order-domain/order-tracking/src/repository"
 )
 
-var statuses = make(map[string]models.OrderStatus)
+type OrderTrackingService struct {
+	repo *repository.OrderTrackingRepository
+}
 
-func TrackOrder(id string) (models.OrderStatus, error) {
-	status, exists := statuses[id]
-	if !exists {
-		return models.OrderStatus{}, errors.New("order status not found")
-	}
-	return status, nil
+func NewOrderTrackingService(repo *repository.OrderTrackingRepository) *OrderTrackingService {
+	return &OrderTrackingService{repo: repo}
+}
+
+func (s *OrderTrackingService) GetOrderTracking(ctx context.Context, orderID string) (*models.OrderTracking, error) {
+	return s.repo.GetOrderTracking(ctx, orderID)
 }

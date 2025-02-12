@@ -1,26 +1,25 @@
-# Usar una imagen base de Go 1.21.0
-FROM golang:1.21.0-alpine
+# Usa una imagen base de Go
+FROM golang:1.23.6 as builder
 
-# Establecer el directorio de trabajo dentro del contenedor
+# Establece el directorio de trabajo
 WORKDIR /app
 
-# Copiar el archivo go.mod y go.sum
+# Copia los archivos del microservicio
+COPY src/ ./src/
 COPY go.mod go.sum ./
 
-# Descargar las dependencias
-RUN go mod download
+# Descarga las dependencias
+RUN cd src && go mod tidy && go build -o /app/main
 
-# Copiar el código fuente
-COPY . .
+# Imagen final más liviana
+FROM alpine:latest
+WORKDIR /root/
 
-# Copiar el archivo de configuración
-COPY app.env ./
+# Copia el binario desde la imagen anterior
+COPY --from=builder /app/main .
 
-# Construir la aplicación
-RUN go build -o order-service
-
-# Exponer el puerto en el que la aplicación escuchará
+# Expone el puerto que usa el servicio
 EXPOSE 8080
 
-# Comando para ejecutar la aplicación
-CMD ["./order-service"]
+# Comando para ejecutar el microservicio
+CMD ["./main"]

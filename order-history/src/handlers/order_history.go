@@ -2,17 +2,26 @@ package handlers
 
 import (
 	"net/http"
-	"order-domain/order-history/services"
+	"order-domain/order-history/src/services"
 
 	"github.com/gin-gonic/gin"
 )
 
-func GetOrderHistory(c *gin.Context) {
+type OrderHistoryHandler struct {
+	service *services.OrderHistoryService
+}
+
+func NewOrderHistoryHandler(service *services.OrderHistoryService) *OrderHistoryHandler {
+	return &OrderHistoryHandler{service: service}
+}
+
+func (h *OrderHistoryHandler) GetOrderHistory(c *gin.Context) {
 	userID := c.Param("user_id")
-	history, err := services.GetOrderHistory(userID)
+	orderHistory, err := h.service.GetOrderHistory(c.Request.Context(), userID)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Order history not found"})
 		return
 	}
-	c.JSON(http.StatusOK, history)
+
+	c.JSON(http.StatusOK, orderHistory)
 }

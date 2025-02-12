@@ -4,14 +4,14 @@ import (
 	"context"
 	"order-domain/order-service/src/models"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type OrderRepository struct {
-	db *pgx.Conn
+	db *pgxpool.Pool
 }
 
-func NewOrderRepository(db *pgx.Conn) *OrderRepository {
+func NewOrderRepository(db *pgxpool.Pool) *OrderRepository {
 	return &OrderRepository{db: db}
 }
 
