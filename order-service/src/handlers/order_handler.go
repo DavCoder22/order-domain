@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type OrderHandler struct {
@@ -87,5 +88,5 @@ func (h *OrderHandler) UpdateOrderStatus(c *gin.Context) {
 
 // 📌 Generar ID para las órdenes
 func generateOrderID() string {
-	return "ORD-" + time.Now().Format("20060102150405")
+	return uuid.New().String()
 }

@@ -1,10 +1,10 @@
 package routers
 
 import (
+	"order-domain/order-history/src/config"
 	"order-domain/order-history/src/handlers"
 	"order-domain/order-history/src/repository"
 	"order-domain/order-history/src/services"
-	"order-domain/order-service/src/config"
 
 	"github.com/gin-gonic/gin"
 )

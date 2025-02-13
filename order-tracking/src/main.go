@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"order-domain/order-service/src/config"
+	"order-domain/order-tracking/src/config"
 	"order-domain/order-tracking/src/routers"
 )
 

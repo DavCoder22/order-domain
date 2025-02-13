@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
+	"order-domain/order-history/src/config"
 	"order-domain/order-history/src/routers"
-	"order-domain/order-service/src/config"
 )
 
 func main() {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"order-domain/order-service/src/models" // O cambia a "order-domain/order-service/src/models" si es necesario
+	"order-domain/order-service/src/models"
 	"order-domain/order-service/src/repository"
 )
 

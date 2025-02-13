@@ -1,8 +1,35 @@
 {
-    "DockerRun.DisableDockerrc": true,
     "cSpell.words": [
+        "api",
+        "appenv",
+        "config",
         "cpoxmpecbigz",
+        "Docker",
+        "dockercompose",
+        "Dockerfile",
+        "endpoint",
+        "env",
+        "gin",
+        "go",
+        "gonic",
+        "goroutines",
+        "handlers",
+        "isrpbseirgadjovvcqer",
+        "main",
+        "microservice",
+        "microservices",
+        "mysql",
         "orderdb",
-        "Sebasalejandro"
+        "postgres",
+        "repository",
+        "routers",
+        "Sebasalejandro",
+        "services",
+        "sql",
+        "src",
+        "SUPABASE",
+        "uuid",
+        "pooler"
     ]
-}
+  }
+  

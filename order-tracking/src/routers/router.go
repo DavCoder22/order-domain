@@ -1,7 +1,7 @@
 package routers
 
 import (
-	"order-domain/order-service/src/config"
+	"order-domain/order-tracking/src/config"
 	"order-domain/order-tracking/src/handlers"
 	"order-domain/order-tracking/src/repository"
 	"order-domain/order-tracking/src/services"
