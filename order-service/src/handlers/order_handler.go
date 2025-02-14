@@ -63,7 +63,7 @@ func (h *OrderHandler) GetOrder(c *gin.Context) {
 	c.JSON(http.StatusOK, order)
 }
 
-// 📌 Actualizar estado de una orden (Ahora acepta JSON correctamente)
+// 📌 Actualizar estado de una orden
 func (h *OrderHandler) UpdateOrderStatus(c *gin.Context) {
 	orderID := c.Param("id")
 	var statusUpdate models.StatusUpdate
@@ -77,9 +77,21 @@ func (h *OrderHandler) UpdateOrderStatus(c *gin.Context) {
 		return
 	}
 
+	// Verificar que el estado no esté vacío
+	if statusUpdate.Status == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "El estado no puede estar vacío",
+			"detalle": "El campo 'status' es obligatorio",
+		})
+		return
+	}
+
 	// Llamar al servicio para actualizar el estado
 	if err := h.service.UpdateOrderStatus(c.Request.Context(), orderID, statusUpdate.Status); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error actualizando estado del pedido"})
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Error actualizando estado del pedido",
+			"detalle": err.Error(),
+		})
 		return
 	}
 
