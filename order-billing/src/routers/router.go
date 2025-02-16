@@ -17,11 +17,9 @@ type Config struct {
 	AppPort    string `mapstructure:"APP_PORT"`
 }
 
-var AppConfig Config
-
 func LoadConfig(path string) (config Config, err error) {
 	viper.AddConfigPath(path)
-	viper.SetConfigName("app1")
+	viper.SetConfigName("app")
 	viper.SetConfigType("env")
 
 	viper.AutomaticEnv() // Permite que Viper lea variables de entorno
@@ -36,7 +34,6 @@ func LoadConfig(path string) (config Config, err error) {
 		return
 	}
 
-	AppConfig = config
 	return config, nil
 }
 

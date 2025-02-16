@@ -13,15 +13,16 @@ import (
 
 func main() {
 	// Load configuration
-	if err := config.LoadConfig("."); err != nil {
+	cfg, err := config.LoadConfig(".")
+	if err != nil {
 		log.Fatalf("Error loading configuration: %v", err)
 	}
 
 	// Initialize database connection
-	config.InitDB()
-
-	// Use the global connection initialized in config.InitDB()
-	db := config.DB
+	db, err := config.NewDBPool(cfg)
+	if err != nil {
+		log.Fatalf("Error initializing database pool: %v", err)
+	}
 	defer db.Close()
 
 	// Initialize services
@@ -32,14 +33,14 @@ func main() {
 	// Configure Gin server
 	r := gin.Default()
 
-	// Define routes without authentication middleware
+	// Define routes
 	r.POST("/orders", orderHandler.CreateOrder)
 	r.GET("/orders/:id", orderHandler.GetOrder)
 	r.PUT("/orders/:id/status", orderHandler.UpdateOrderStatus)
 
 	// Start server
-	log.Printf("Server started on port %s", config.AppConfig.AppPort)
-	if err := r.Run(":" + config.AppConfig.AppPort); err != nil {
+	log.Printf("Server started on port %s", cfg.AppPort)
+	if err := r.Run(":" + cfg.AppPort); err != nil {
 		log.Fatalf("Error starting server: %v", err)
 	}
 }

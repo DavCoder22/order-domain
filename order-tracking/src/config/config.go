@@ -2,6 +2,7 @@ package config
 
 import (
 	"context"
+	"database/sql"
 	"log"
 	"os"
 
@@ -20,6 +21,7 @@ type Config struct {
 
 var AppConfig Config
 var DB *pgxpool.Pool
+var MySQLDB *sql.DB
 
 func LoadConfig(path string) error {
 	// Load environment variables from app.env file
@@ -34,6 +36,7 @@ func LoadConfig(path string) error {
 	viper.BindEnv("SUPABASE_URL", "SUPABASE_URL")
 	viper.BindEnv("APP_PORT", "APP_PORT")
 	viper.BindEnv("JWT_SECRET", "JWT_SECRET")
+	viper.BindEnv("MYSQL_DSN", "MYSQL_DSN")
 
 	AppConfig.SupabaseURL = viper.GetString("SUPABASE_URL")
 	AppConfig.AppPort = viper.GetString("APP_PORT")
@@ -62,4 +65,23 @@ func InitDB() {
 	}
 
 	log.Println("✅ Successful connection to Supabase")
+
+	// Conectar a MySQL
+	mysqlDSN := os.Getenv("MYSQL_DSN")
+	if mysqlDSN == "" {
+		log.Fatal("❌ MySQL DSN not configured")
+	}
+
+	var mysqlErr error
+	MySQLDB, mysqlErr = sql.Open("mysql", mysqlDSN)
+	if mysqlErr != nil {
+		log.Fatalf("❌ Error opening MySQL database: %v", mysqlErr)
+	}
+
+	mysqlPingErr := MySQLDB.Ping()
+	if mysqlPingErr != nil {
+		log.Fatalf("❌ Error connecting to MySQL database: %v", mysqlPingErr)
+	}
+
+	log.Println("✅ Successful connection to MySQL")
 }

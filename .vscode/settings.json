@@ -52,5 +52,6 @@
       "servicio",
       "Comando",
       "ejecutar"
-    ]
+    ],
+    "DockerRun.DisableDockerrc": true
   }

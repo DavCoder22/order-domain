@@ -1,48 +1,18 @@
-package config
+package router
 
 import (
-	"context"
-	"log"
+	"order-domain/order-service/src/handlers"
 
-	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/spf13/viper"
+	"github.com/gin-gonic/gin"
 )
 
-type Config struct {
-	DBHost     string `mapstructure:"DB_HOST"`
-	DBPort     string `mapstructure:"DB_PORT"`
-	DBUser     string `mapstructure:"DB_USER"`
-	DBPassword string `mapstructure:"DB_PASSWORD"`
-	DBName     string `mapstructure:"DB_NAME"`
-	AppPort    string `mapstructure:"APP_PORT"`
-}
+func SetupRouter(orderHandler *handlers.OrderHandler) *gin.Engine {
+	r := gin.Default()
 
-func LoadConfig(path string) (config Config, err error) {
-	viper.AddConfigPath(path)
-	viper.SetConfigName("app")
-	viper.SetConfigType("env")
+	// Define routes
+	r.POST("/orders", orderHandler.CreateOrder)
+	r.GET("/orders/:id", orderHandler.GetOrder)
+	r.PUT("/orders/:id/status", orderHandler.UpdateOrderStatus)
 
-	viper.AutomaticEnv() // Permite que Viper lea variables de entorno
-
-	if err = viper.ReadInConfig(); err != nil {
-		log.Printf("Error reading config file, %s", err)
-		return
-	}
-
-	if err = viper.Unmarshal(&config); err != nil {
-		log.Printf("Unable to decode into struct, %v", err)
-		return
-	}
-
-	return config, nil
-}
-
-func NewDBPool(cfg Config) (*pgxpool.Pool, error) {
-	connStr := "postgres://" + cfg.DBUser + ":" + cfg.DBPassword + "@" + cfg.DBHost + ":" + cfg.DBPort + "/" + cfg.DBName
-	pool, err := pgxpool.New(context.Background(), connStr)
-	if err != nil {
-		log.Fatalf("Unable to connect to database: %v\n", err)
-		return nil, err
-	}
-	return pool, nil
+	return r
 }
